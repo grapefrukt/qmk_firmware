@@ -5,6 +5,14 @@ enum layers {
     _FUNC,
 };
 
+enum unicode_names {
+    HOTDOG,
+};
+
+const uint32_t PROGMEM unicode_map[] = {
+    [HOTDOG]  = 0x1F32D,  // 🌭
+};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         
     /* Keymap (Base Layer) Default Layer
@@ -29,7 +37,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     /* Keymap Fn Layer
      * ,----------------------------------------------------------------.
-     * | ` | F1| F2| F3| F4| F5| F6| F7| F8| F9|F10|F11|F12|  Del  |Ins |
+     * | 🌭| F1| F2| F3| F4| F5| F6| F7| F8| F9|F10|F11|F12|  Del  |Prt |
      * |----------------------------------------------------------------|
      * |     |TOG|M+ |H+ |S+ |V+ |Sp+|   |Prt|SLk|Pau|   |   |     |Home|
      * |------------------------------------------------------.    |----|
@@ -41,7 +49,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * `----------------------------------------------------------------'
      */
     [_FUNC] = LAYOUT_all(
-         _______,  KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5,  KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10, KC_F11, KC_F12, KC_DEL,KC_DEL,KC_INS, 
+         X(HOTDOG),  KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5,  KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10, KC_F11, KC_F12, KC_DEL,KC_DEL,KC_PSCR, 
          _______,   RGB_TOG, RGB_MOD, RGB_HUI, RGB_SAI, RGB_VAI, RGB_SPI,_______,KC_PSCR,KC_SLCK,KC_PAUS,_______,_______,_______,      KC_HOME, 
          _______,     VLK_TOG, RGB_RMOD, RGB_HUD, RGB_SAD, RGB_VAD, RGB_SPD,_______,_______,_______,_______,_______,      _______,      KC_END, 
          _______,_______,BL_TOGG, BL_DEC, BL_INC, BL_BRTG,_______,_______,_______,_______,_______,_______,_______,        KC_PGUP,_______, 
@@ -53,7 +61,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 void matrix_init_user(void) {
-    
+    set_unicode_input_mode(UC_WINC);
 }
 
 void matrix_scan_user(void) {
@@ -61,9 +69,13 @@ void matrix_scan_user(void) {
 }
 
 void led_set_user(uint8_t usb_led) {
-    if (usb_led & (1 << USB_LED_CAPS_LOCK)) {
+    /*if (usb_led & (1 << USB_LED_CAPS_LOCK)) {
       rgblight_enable_noeeprom();
     } else {
       rgblight_disable_noeeprom();
-    }
+    }*/
+}
+
+void eeconfig_init_user(void) {
+    
 }
