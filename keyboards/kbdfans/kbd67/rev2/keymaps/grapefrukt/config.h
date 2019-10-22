@@ -4,9 +4,9 @@
 #undef PRODUCT
 #undef DESCRIPTION
 
-#define MANUFACTURER    Potato Inc.
-#define PRODUCT         Qt3.14
-#define DESCRIPTION     Look, a keyboard!
+#define MANUFACTURER    grapefrukt
+#define PRODUCT         grapefrukt keyboard
+#define DESCRIPTION     it can type things
 
 /* send tap key if no layer key was used even after tap delay */
 #define TAPPING_TERM 50
