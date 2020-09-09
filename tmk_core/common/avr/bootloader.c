@@ -59,11 +59,6 @@
 uint16_t bootloader_start;
 #endif
 
-#define BOOT_SIZE_256 0b110
-#define BOOT_SIZE_512 0b100
-#define BOOT_SIZE_1024 0b010
-#define BOOT_SIZE_2048 0b000
-
 // compatibility between ATMega8 and ATMega88
 #if !defined(MCUCSR)
 #    if defined(MCUSR)
@@ -86,11 +81,11 @@ void bootloader_jump(void) {
 #if !defined(BOOTLOADER_SIZE)
     uint8_t high_fuse = boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS);
 
-    if (high_fuse & BOOT_SIZE_256) {
+    if (high_fuse & ~(FUSE_BOOTSZ0 & FUSE_BOOTSZ1)) {
         bootloader_start = (FLASH_SIZE - 512) >> 1;
-    } else if (high_fuse & BOOT_SIZE_512) {
+    } else if (high_fuse & ~(FUSE_BOOTSZ1)) {
         bootloader_start = (FLASH_SIZE - 1024) >> 1;
-    } else if (high_fuse & BOOT_SIZE_1024) {
+    } else if (high_fuse & ~(FUSE_BOOTSZ0)) {
         bootloader_start = (FLASH_SIZE - 2048) >> 1;
     } else {
         bootloader_start = (FLASH_SIZE - 4096) >> 1;
@@ -242,17 +237,17 @@ void bootloader_jump(void) {
                  "bootloader_startup_loop%=:         \n\t"
                  "rjmp bootloader_startup_loop%=     \n\t"
                  :
-                 : [ mcucsrio ] "I"(_SFR_IO_ADDR(MCUCSR)),
+                 : [mcucsrio] "I"(_SFR_IO_ADDR(MCUCSR)),
 #    if (FLASHEND > 131071)
-                   [ ramendhi ] "M"(((RAMEND - 2) >> 8) & 0xff), [ ramendlo ] "M"(((RAMEND - 2) >> 0) & 0xff), [ bootaddrhi ] "M"((((FLASH_SIZE - BOOTLOADER_SIZE) >> 1) >> 16) & 0xff),
+                   [ramendhi] "M"(((RAMEND - 2) >> 8) & 0xff), [ramendlo] "M"(((RAMEND - 2) >> 0) & 0xff), [bootaddrhi] "M"((((FLASH_SIZE - BOOTLOADER_SIZE) >> 1) >> 16) & 0xff),
 #    else
-                   [ ramendhi ] "M"(((RAMEND - 1) >> 8) & 0xff), [ ramendlo ] "M"(((RAMEND - 1) >> 0) & 0xff),
+                   [ramendhi] "M"(((RAMEND - 1) >> 8) & 0xff), [ramendlo] "M"(((RAMEND - 1) >> 0) & 0xff),
 #    endif
-                   [ bootaddrme ] "M"((((FLASH_SIZE - BOOTLOADER_SIZE) >> 1) >> 8) & 0xff), [ bootaddrlo ] "M"((((FLASH_SIZE - BOOTLOADER_SIZE) >> 1) >> 0) & 0xff));
+                   [bootaddrme] "M"((((FLASH_SIZE - BOOTLOADER_SIZE) >> 1) >> 8) & 0xff), [bootaddrlo] "M"((((FLASH_SIZE - BOOTLOADER_SIZE) >> 1) >> 0) & 0xff));
 
 #else  // Assume remaining boards are DFU, even if the flag isn't set
 
-#    if !(defined(__AVR_ATmega32A__) || defined(__AVR_ATmega328P__))  // no USB - maybe BOOTLOADER_BOOTLOADHID instead though?
+#    if !(defined(__AVR_ATmega32A__) || defined(__AVR_ATmega328P__) || defined(__AVR_ATmega328__) || defined(__AVR_ATtiny85__))  // no USB - maybe BOOTLOADER_BOOTLOADHID instead though?
     UDCON  = 1;
     USBCON = (1 << FRZCLK);  // disable USB
     UCSR1B = 0;
